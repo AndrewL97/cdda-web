@@ -10,7 +10,7 @@ on:
       release_tag:  
         description: 'CDDA release tag to build (e.g., 0.I for stable Ito)'  
         required: true  
-        default: '0.I'  
+        default: 'latest'  
   
 # Lets the build push the finished site to the gh-pages branch.  
 permissions:  
