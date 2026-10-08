@@ -140,8 +140,9 @@ cmake_build_install sdl3_image sdl3-image-build \
 
 clone_release SDL_ttf "${SDL3_TTF_VERSION}" sdl3_ttf
 
-cmake_build_install sdl3_ttf sdl3-ttf-build \
+cmake_build_install sdl3_ttf sdl3-ttf-build \    
     -DCMAKE_BUILD_TYPE=Release \
+    -DSDL3_DIR="${SDL3_CMAKE_DIR}" \
     -DSDLTTF_TESTS=OFF \
     -DSDLTTF_SAMPLES=OFF \
     -DSDLTTF_VENDORED=OFF \
@@ -159,6 +160,7 @@ clone_release SDL_mixer "${SDL3_MIXER_VERSION}" sdl3_mixer
 
 cmake_build_install sdl3_mixer sdl3-mixer-build \
     -DCMAKE_BUILD_TYPE=Release \
+    -DSDL3_DIR="${SDL3_CMAKE_DIR}" \
     -DSDLMIXER_TESTS=OFF \
     -DSDLMIXER_SAMPLES=OFF \
     -DSDLMIXER_VENDORED=OFF \
