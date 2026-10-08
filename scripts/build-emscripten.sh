@@ -1,39 +1,40 @@
 #!/usr/bin/env bash
-
 set -euo pipefail
 
 SDL_PREFIX="${PWD}/.sdl3-wasm"
-BUILD_ROOT="${PWD}/.sdl3-build"
+SDL_BUILD_ROOT="${PWD}/.sdl3-build"
+SDL_SOURCE_ROOT="${PWD}/.sdl3-source"
 
 SDL3_VERSION="3.4.10"
 SDL3_IMAGE_VERSION="3.4.4"
 SDL3_TTF_VERSION="3.2.2"
 SDL3_MIXER_VERSION="3.2.4"
 
-rm -rf "${SDL_PREFIX}" "${BUILD_ROOT}"
-mkdir -p "${SDL_PREFIX}" "${BUILD_ROOT}"
+mkdir -p "${SDL_PREFIX}" "${SDL_BUILD_ROOT}" "${SDL_SOURCE_ROOT}"
 
 export PKG_CONFIG_PATH="${SDL_PREFIX}/lib/pkgconfig"
 export CMAKE_PREFIX_PATH="${SDL_PREFIX}"
-
-cd "${BUILD_ROOT}"
 
 clone_release() {
     local repo="$1"
     local version="$2"
     local dir="$3"
+    local target="${SDL_SOURCE_ROOT}/${dir}"
 
-    echo "DEBUG: repo='${repo}'"
-    echo "DEBUG: version='${version}'"
-    echo "DEBUG: dir='${dir}'"
-    echo "DEBUG: branch='release-${version}'"
+    if [[ -d "${target}/.git" ]]; then
+        echo "Using cached ${repo} ${version}: ${target}"
+        return
+    fi
 
-    git clone --depth 1 \
+    echo "Cloning ${repo} ${version}..."
+
+    git clone \
+        --depth 1 \
         --recurse-submodules \
         --shallow-submodules \
         --branch "release-${version}" \
         "https://github.com/libsdl-org/${repo}.git" \
-        "${dir}"
+        "${target}"
 }
 
 cmake_build_install() {
@@ -41,35 +42,30 @@ cmake_build_install() {
     local build="$2"
     shift 2
 
+    local source_dir="${SDL_SOURCE_ROOT}/${source}"
+    local build_dir="${SDL_BUILD_ROOT}/${build}"
+
+    mkdir -p "${build_dir}"
+
     emcmake cmake \
-        -S "${source}" \
-        -B "${build}" \
+        -S "${source_dir}" \
+        -B "${build_dir}" \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX="${SDL_PREFIX}" \
         -DCMAKE_PREFIX_PATH="${SDL_PREFIX}" \
         "$@"
 
-    cmake --build "${build}" -j"$(nproc)"
-    cmake --install "${build}"
-
-    echo "SDL_PREFIX=${SDL_PREFIX}"
-    echo "CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}"
-    
-    find "${SDL_PREFIX}" -maxdepth 5 -type f | sort
-    
+    cmake --build "${build_dir}" -j"$(nproc)"
+    cmake --install "${build_dir}"
 }
 
 #
 # SDL3
 #
 
-echo "DEBUG: SDL3_VERSION='${SDL3_VERSION}'"
-echo "DEBUG: clone args: SDL '${SDL3_VERSION}' sdl3"
-
 clone_release SDL "${SDL3_VERSION}" sdl3
 
 cmake_build_install sdl3 sdl3-build \
-    -DCMAKE_BUILD_TYPE=Release \
     -DSDL_DEPS_SHARED=ON \
     -DSDL_TESTS=OFF \
     -DSDL_AUDIO=ON \
@@ -105,14 +101,6 @@ SDL3_CMAKE_DIR="${SDL_PREFIX}/lib/cmake/SDL3"
 
 test -f "${SDL3_CMAKE_DIR}/SDL3Config.cmake"
 
-if [[ ! -f "${SDL3_CMAKE_DIR}/SDL3Config.cmake" ]]; then
-    echo "ERROR: SDL3Config.cmake was not installed where expected:"
-    echo "       ${SDL3_CMAKE_DIR}/SDL3Config.cmake"
-    find "${SDL_PREFIX}" -name 'SDL3Config.cmake' -o -name 'sdl3-config.cmake'
-    exit 1
-fi
-
-
 #
 # SDL3_image
 #
@@ -123,7 +111,6 @@ fi
 clone_release SDL_image "${SDL3_IMAGE_VERSION}" sdl3_image
 
 cmake_build_install sdl3_image sdl3-image-build \
-    -DCMAKE_BUILD_TYPE=Release \
     -DSDL3_DIR="${SDL3_CMAKE_DIR}" \
     -DSDLIMAGE_TESTS=OFF \
     -DSDLIMAGE_SAMPLES=OFF \
@@ -137,6 +124,7 @@ cmake_build_install sdl3_image sdl3-image-build \
     -DSDLIMAGE_TIF=OFF \
     -DSDLIMAGE_WEBP=OFF \
     -DBUILD_SHARED_LIBS=OFF
+
 #
 # SDL3_ttf
 #
@@ -144,7 +132,6 @@ cmake_build_install sdl3_image sdl3-image-build \
 clone_release SDL_ttf "${SDL3_TTF_VERSION}" sdl3_ttf
 
 cmake_build_install sdl3_ttf sdl3-ttf-build \
-    -DCMAKE_BUILD_TYPE=Release \
     -DSDL3_DIR="${SDL3_CMAKE_DIR}" \
     -DSDLTTF_TESTS=OFF \
     -DSDLTTF_SAMPLES=OFF \
@@ -161,7 +148,6 @@ cmake_build_install sdl3_ttf sdl3-ttf-build \
 clone_release SDL_mixer "${SDL3_MIXER_VERSION}" sdl3_mixer
 
 cmake_build_install sdl3_mixer sdl3-mixer-build \
-    -DCMAKE_BUILD_TYPE=Release \
     -DSDL3_DIR="${SDL3_CMAKE_DIR}" \
     -DSDLMIXER_TESTS=OFF \
     -DSDLMIXER_EXAMPLES=OFF \
@@ -183,10 +169,6 @@ cmake_build_install sdl3_mixer sdl3-mixer-build \
     -DSDLMIXER_GME=OFF \
     -DSDLMIXER_STRICT=ON \
     -DBUILD_SHARED_LIBS=OFF
-    
-
-
-cd "${OLDPWD}"
 
 echo "SDL WASM libraries installed in ${SDL_PREFIX}"
 echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}"
