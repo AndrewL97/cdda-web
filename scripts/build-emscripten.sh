@@ -164,7 +164,7 @@ cmake_build_install sdl3_mixer sdl3-mixer-build \
     -DCMAKE_BUILD_TYPE=Release \
     -DSDL3_DIR="${SDL3_CMAKE_DIR}" \
     -DSDLMIXER_TESTS=OFF \
-    -DSDLMIXER_SAMPLES=OFF \
+    -DSDLMIXER_EXAMPLES=OFF \
     -DSDLMIXER_VENDORED=ON \
     -DSDLMIXER_DEPS_SHARED=OFF \
     -DSDLMIXER_FLAC=ON \
