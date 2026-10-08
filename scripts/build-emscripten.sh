@@ -44,11 +44,18 @@ cmake_build_install() {
         -B "${build}" \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX="${SDL_PREFIX}" \
+        -DCMAKE_PREFIX_PATH="${SDL_PREFIX}" \
         -DBUILD_SHARED_LIBS=OFF \
         "$@"
 
     cmake --build "${build}" -j"$(nproc)"
     cmake --install "${build}"
+
+    echo "SDL_PREFIX=${SDL_PREFIX}"
+    echo "CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}"
+    
+    find "${SDL_PREFIX}" -maxdepth 5 -type f | sort
+    
 }
 
 #
@@ -64,6 +71,19 @@ cmake_build_install sdl3 sdl3-build \
     -DSDL_TESTS=OFF \
     -DSDL_EXAMPLES=OFF
 
+# Setup config stuff
+SDL3_CMAKE_DIR="${SDL_PREFIX}/lib/cmake/SDL3"
+
+test -f "${SDL3_CMAKE_DIR}/SDL3Config.cmake"
+
+if [[ ! -f "${SDL3_CMAKE_DIR}/SDL3Config.cmake" ]]; then
+    echo "ERROR: SDL3Config.cmake was not installed where expected:"
+    echo "       ${SDL3_CMAKE_DIR}/SDL3Config.cmake"
+    find "${SDL_PREFIX}" -name 'SDL3Config.cmake' -o -name 'sdl3-config.cmake'
+    exit 1
+fi
+
+
 #
 # SDL3_image
 #
@@ -74,6 +94,7 @@ cmake_build_install sdl3 sdl3-build \
 clone_release SDL_image "${SDL3_IMAGE_VERSION}" sdl3_image
 
 cmake_build_install sdl3_image sdl3-image-build \
+    -DSDL3_DIR="${SDL3_CMAKE_DIR}" \
     -DSDLIMAGE_TESTS=OFF \
     -DSDLIMAGE_SAMPLES=OFF \
     -DSDLIMAGE_VENDORED=ON \
