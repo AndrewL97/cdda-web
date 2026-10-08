@@ -96,7 +96,7 @@ cmake_build_install sdl3 sdl3-build \
     -DSDL_WAYLAND_LIBDECOR_SHARED=ON \
     -DSDL_X11=ON \
     -DSDL_X11_SHARED=ON \
-    -DBUILD_SHARED_LIBS=ON
+    -DBUILD_SHARED_LIBS=OFF
 
 # Setup config stuff
 SDL3_CMAKE_DIR="${SDL_PREFIX}/lib/cmake/SDL3"
@@ -125,7 +125,7 @@ cmake_build_install sdl3_image sdl3-image-build \
     -DSDL3_DIR="${SDL3_CMAKE_DIR}" \
     -DSDLIMAGE_TESTS=OFF \
     -DSDLIMAGE_SAMPLES=OFF \
-    -DSDLIMAGE_VENDORED=OFF \
+    -DSDLIMAGE_VENDORED=ON \
     -DSDLIMAGE_DEPS_SHARED=OFF \
     -DSDLIMAGE_PNG=ON \
     -DSDLIMAGE_PNG_LIBPNG=ON \
@@ -134,7 +134,7 @@ cmake_build_install sdl3_image sdl3-image-build \
     -DSDLIMAGE_JXL=OFF \
     -DSDLIMAGE_TIF=OFF \
     -DSDLIMAGE_WEBP=OFF \
-    -DBUILD_SHARED_LIBS=ON
+    -DBUILD_SHARED_LIBS=OFF
 #
 # SDL3_ttf
 #
@@ -146,10 +146,9 @@ cmake_build_install sdl3_ttf sdl3-ttf-build \
     -DSDL3_DIR="${SDL3_CMAKE_DIR}" \
     -DSDLTTF_TESTS=OFF \
     -DSDLTTF_SAMPLES=OFF \
-    -DSDLTTF_VENDORED=OFF \
-    -DSDLTTF_STRICT=ON \
+    -DSDLTTF_VENDORED=ON \
     -DSDLTTF_PLUTOSVG=OFF \
-    -DBUILD_SHARED_LIBS=ON
+    -DBUILD_SHARED_LIBS=OFF
 
 #
 # SDL3_mixer
@@ -164,7 +163,7 @@ cmake_build_install sdl3_mixer sdl3-mixer-build \
     -DSDL3_DIR="${SDL3_CMAKE_DIR}" \
     -DSDLMIXER_TESTS=OFF \
     -DSDLMIXER_SAMPLES=OFF \
-    -DSDLMIXER_VENDORED=OFF \
+    -DSDLMIXER_VENDORED=ON \
     -DSDLMIXER_DEPS_SHARED=OFF \
     -DSDLMIXER_FLAC=ON \
     -DSDLMIXER_FLAC_LIBFLAC=ON \
@@ -181,7 +180,7 @@ cmake_build_install sdl3_mixer sdl3-mixer-build \
     -DSDLMIXER_MIDI=OFF \
     -DSDLMIXER_GME=OFF \
     -DSDLMIXER_STRICT=ON \
-    -DBUILD_SHARED_LIBS=ON
+    -DBUILD_SHARED_LIBS=OFF
     
 
 
