@@ -96,7 +96,7 @@ cmake_build_install sdl3 sdl3-build \
     -DSDL_WAYLAND_LIBDECOR_SHARED=ON \
     -DSDL_X11=ON \
     -DSDL_X11_SHARED=ON \
-    -DBUILD_SHARED_LIBS=OFF
+    -DBUILD_SHARED_LIBS=ON
 
 # Setup config stuff
 SDL3_CMAKE_DIR="${SDL_PREFIX}/lib/cmake/SDL3"
@@ -134,7 +134,7 @@ cmake_build_install sdl3_image sdl3-image-build \
     -DSDLIMAGE_JXL=OFF \
     -DSDLIMAGE_TIF=OFF \
     -DSDLIMAGE_WEBP=OFF \
-    -DBUILD_SHARED_LIBS=OFF
+    -DBUILD_SHARED_LIBS=ON
 #
 # SDL3_ttf
 #
