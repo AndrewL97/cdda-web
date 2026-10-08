@@ -43,15 +43,15 @@ echo "Applying patched mmap_file.cpp into src/..."
 cp "$REPO_ROOT/mmap_file.cpp" "src/mmap_file.cpp"  
   
 # --- Step 1: Compile with Emscripten ---  
-if [ ! -f "build-scripts/build-emscripten.sh" ]; then  
-  echo "ERROR: build-scripts/build-emscripten.sh not found in this source tree."  
-  echo "The build layout has changed again - listing build-scripts/ for reference:"  
-  ls -la build-scripts/  
-  exit 1  
-fi  
-  
-echo "Compiling cataclysm-tiles.js via build-scripts/build-emscripten.sh..."  
-bash build-scripts/build-emscripten.sh  
+# Replaced with our own version
+if [ ! -f "$REPO_ROOT/scripts/build-emscripten.sh" ]; then
+    echo "ERROR: custom build-emscripten.sh not found."
+    exit 1
+fi
+
+echo "Compiling cataclysm-tiles.js via cdda-web/scripts/build-emscripten.sh..."
+
+bash "$REPO_ROOT/scripts/build-emscripten.sh"
   
 # --- Step 2: Package data + assemble the real web bundle ---  
 if [ ! -f "build-scripts/prepare-web.sh" ]; then  
