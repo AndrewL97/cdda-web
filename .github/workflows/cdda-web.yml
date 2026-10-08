@@ -98,7 +98,7 @@ jobs:
             cdda-source/.sdl3-source
           key: emscripten-deps-${{ env.EMSCRIPTEN_VERSION }}-sdl-${{ hashFiles('scripts/build-emscripten.sh') }}
           restore-keys: |
-            emscripten-deps-${{ env.EMSCRIPTEN_VERSION }}-sdl-
+            emscripten-deps-${{ env.EMSCRIPTEN_VERSION }}-sdl3-
   
       - name: Cache ccache  
         uses: actions/cache@v4  
@@ -106,9 +106,8 @@ jobs:
           path: ~/.ccache  
           key: ccache-${{ env.EMSCRIPTEN_VERSION }}-${{ steps.get_tag.outputs.tag }}-${{ hashFiles('mmap_file.cpp', 'scripts/build-emscripten.sh') }}  
           restore-keys: |  
-            ccache-${{ env.EMSCRIPTEN_VERSION }}-  
-            ccache-  
-  
+            ccache-${{ env.EMSCRIPTEN_VERSION }}-
+            
       - name: Cache build artifacts  
         uses: actions/cache@v4  
         with:  
