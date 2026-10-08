@@ -52,7 +52,7 @@ cat > "$OUTPUT_DIR/BUILD_INFO.json" << EOF
   "tiles": "${BUILD_TILES:-true}",
   "sound": "${BUILD_SOUND:-true}",
   "localization": "${BUILD_LOCALIZATION:-false}",
-  "emscripten_version": "${EMSCRIPTEN_VERSION:-3.1.51}"
+  "emscripten_version": "${EMSCRIPTEN_VERSION:-3.1.58}"
 }
 EOF
 
