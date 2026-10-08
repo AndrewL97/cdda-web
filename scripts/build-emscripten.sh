@@ -23,6 +23,11 @@ clone_release() {
     local version="$2"
     local dir="$3"
 
+    echo "DEBUG: repo='${repo}'"
+    echo "DEBUG: version='${version}'"
+    echo "DEBUG: dir='${dir}'"
+    echo "DEBUG: branch='release-${version}'"
+
     git clone --depth 1 \
         --branch "release-${version}" \
         "https://github.com/libsdl-org/${repo}.git" \
@@ -49,6 +54,9 @@ cmake_build_install() {
 #
 # SDL3
 #
+
+echo "DEBUG: SDL3_VERSION='${SDL3_VERSION}'"
+echo "DEBUG: clone args: SDL '${SDL3_VERSION}' sdl3"
 
 clone_release SDL "${SDL3_VERSION}" sdl3
 
