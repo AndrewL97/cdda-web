@@ -182,6 +182,41 @@ pkg-config --modversion sdl3-mixer
 # CDDA
 #
 
+
+#
+# Expose SDL_ttf's vendored FreeType headers to the CDDA build.
+#
+
+FREETYPE_INCLUDE_DIR="$(find \
+    "${SDL_BUILD_ROOT}/sdl3-ttf-build" \
+    -type f \
+    -name ft2build.h \
+    -printf '%h\n' \
+    -quit
+)"
+
+FREETYPE_CONFIG_DIR="$(find \
+    "${SDL_BUILD_ROOT}/sdl3-ttf-build" \
+    -type f \
+    -name ftconfig.h \
+    -printf '%h\n' \
+    -quit
+)"
+
+if [[ -z "${FREETYPE_INCLUDE_DIR}" || -z "${FREETYPE_CONFIG_DIR}" ]]; then
+    echo "ERROR: Could not locate SDL_ttf's vendored FreeType headers"
+    find "${SDL_BUILD_ROOT}/sdl3-ttf-build" \
+        \( -name ft2build.h -o -name ftconfig.h \) -print
+    exit 1
+fi
+
+echo "FreeType headers: ${FREETYPE_INCLUDE_DIR}"
+echo "FreeType config:  ${FREETYPE_CONFIG_DIR}"
+
+export CXXFLAGS="${CXXFLAGS:-} -isystem ${FREETYPE_INCLUDE_DIR} -isystem ${FREETYPE_CONFIG_DIR}"
+export CFLAGS="${CFLAGS:-} -isystem ${FREETYPE_INCLUDE_DIR} -isystem ${FREETYPE_CONFIG_DIR}"
+
+
 make -j"$(nproc)" \
     NATIVE=emscripten \
     TILES=1 \
