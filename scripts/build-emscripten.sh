@@ -141,7 +141,7 @@ cmake_build_install sdl3_image sdl3-image-build \
 
 clone_release SDL_ttf "${SDL3_TTF_VERSION}" sdl3_ttf
 
-cmake_build_install sdl3_ttf sdl3-ttf-build \    
+cmake_build_install sdl3_ttf sdl3-ttf-build \
     -DCMAKE_BUILD_TYPE=Release \
     -DSDL3_DIR="${SDL3_CMAKE_DIR}" \
     -DSDLTTF_TESTS=OFF \
