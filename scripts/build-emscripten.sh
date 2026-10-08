@@ -137,6 +137,8 @@ cmake_build_install sdl3_ttf sdl3-ttf-build \
     -DSDLTTF_SAMPLES=OFF \
     -DSDLTTF_VENDORED=ON \
     -DSDLTTF_PLUTOSVG=OFF \
+    -DSDLTTF_HARFBUZZ=ON \
+    -DSDLTTF_FREETYPE=ON \
     -DBUILD_SHARED_LIBS=OFF
 
 #
