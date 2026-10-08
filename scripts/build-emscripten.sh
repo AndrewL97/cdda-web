@@ -126,7 +126,7 @@ cmake_build_install sdl3_image sdl3-image-build \
     -DSDLIMAGE_SAMPLES=OFF \
     -DSDLIMAGE_VENDORED=OFF \
     -DSDLIMAGE_DEPS_SHARED=OFF \
-    -DSDLIMAGE_PNG=ON
+    -DSDLIMAGE_PNG=ON \
     -DSDLIMAGE_PNG_LIBPNG=ON \
     -DSDLIMAGE_JPG=ON \
     -DSDLIMAGE_AVIF=OFF \
@@ -176,7 +176,7 @@ cmake_build_install sdl3_mixer sdl3-mixer-build \
     -DSDLMIXER_OPUS=OFF \
     -DSDLMIXER_MOD=OFF \
     -DSDLMIXER_MIDI=OFF \
-    -DSDLMIXER_GME=OFF
+    -DSDLMIXER_GME=OFF \
     -DSDLMIXER_STRICT=ON \
     -DBUILD_SHARED_LIBS=ON
     
