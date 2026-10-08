@@ -50,7 +50,7 @@ cmake_build_install() {
 # SDL3
 #
 
-clone_release SDL SDL3_VERSION sdl3
+clone_release SDL "${SDL3_VERSION}" sdl3
 
 cmake_build_install sdl3 sdl3-build \
     -DSDL_TESTS=OFF \
@@ -63,7 +63,7 @@ cmake_build_install sdl3 sdl3-build \
 # Ubuntu's native libpng/libjpeg/etc. cannot be linked into WASM.
 #
 
-clone_release SDL_image SDL3_IMAGE_VERSION sdl3_image
+clone_release SDL_image "${SDL3_IMAGE_VERSION}" sdl3_image
 
 cmake_build_install sdl3_image sdl3-image-build \
     -DSDLIMAGE_TESTS=OFF \
@@ -78,7 +78,7 @@ cmake_build_install sdl3_image sdl3-image-build \
 # SDL3_ttf
 #
 
-clone_release SDL_ttf SDL3_TTF_VERSION sdl3_ttf
+clone_release SDL_ttf "${SDL3_TTF_VERSION}" sdl3_ttf
 
 cmake_build_install sdl3_ttf sdl3-ttf-build \
     -DSDLTTF_TESTS=OFF \
@@ -91,7 +91,7 @@ cmake_build_install sdl3_ttf sdl3-ttf-build \
 # Again, use vendored codec dependencies so everything is built for WASM.
 #
 
-clone_release SDL_mixer SDL3_MIXER_VERSION sdl3_mixer
+clone_release SDL_mixer "${SDL3_MIXER_VERSION}" sdl3_mixer
 
 cmake_build_install sdl3_mixer sdl3-mixer-build \
     -DSDLMIXER_TESTS=OFF \
