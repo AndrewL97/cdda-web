@@ -89,13 +89,24 @@ jobs:
   
       # Save/restore ccache's cache box between runs. This is what makes the  
       # SECOND and later builds fast (first build is still full-length).  
+      - name: Cache Emscripten dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            cdda-source/.sdl3-wasm
+            cdda-source/.sdl3-build
+            cdda-source/.sdl3-source
+          key: emscripten-deps-${{ env.EMSCRIPTEN_VERSION }}-sdl-${{ hashFiles('scripts/build-emscripten.sh') }}
+          restore-keys: |
+            emscripten-deps-${{ env.EMSCRIPTEN_VERSION }}-sdl-
+  
       - name: Cache ccache  
         uses: actions/cache@v4  
         with:  
           path: ~/.ccache  
-          key: ccache-${{ steps.get_tag.outputs.tag }}-${{ env.EMSCRIPTEN_VERSION }}  
+          key: ccache-${{ env.EMSCRIPTEN_VERSION }}-${{ steps.get_tag.outputs.tag }}-${{ hashFiles('mmap_file.cpp', 'scripts/build-emscripten.sh') }}  
           restore-keys: |  
-            ccache-${{ steps.get_tag.outputs.tag }}-  
+            ccache-${{ env.EMSCRIPTEN_VERSION }}-  
             ccache-  
   
       - name: Cache build artifacts  
