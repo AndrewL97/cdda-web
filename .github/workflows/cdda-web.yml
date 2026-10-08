@@ -89,24 +89,24 @@ jobs:
   
       # Save/restore ccache's cache box between runs. This is what makes the  
       # SECOND and later builds fast (first build is still full-length).  
-      - name: Cache Emscripten dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            cdda-source/.sdl3-wasm
-            cdda-source/.sdl3-build
-            cdda-source/.sdl3-source
-          key: emscripten-deps-${{ env.EMSCRIPTEN_VERSION }}-sdl-${{ hashFiles('scripts/build-emscripten.sh') }}
-          restore-keys: |
-            emscripten-deps-${{ env.EMSCRIPTEN_VERSION }}-sdl3-
+      # - name: Cache Emscripten dependencies
+      #   uses: actions/cache@v4
+      #   with:
+      #     path: |
+      #       cdda-source/.sdl3-wasm
+      #       cdda-source/.sdl3-build
+      #       cdda-source/.sdl3-source
+      #     key: emscripten-deps-${{ env.EMSCRIPTEN_VERSION }}-sdl-${{ hashFiles('scripts/build-emscripten.sh') }}
+      #     restore-keys: |
+      #       emscripten-deps-${{ env.EMSCRIPTEN_VERSION }}-sdl3-
   
-      - name: Cache ccache  
-        uses: actions/cache@v4  
-        with:  
-          path: ~/.ccache  
-          key: ccache-${{ env.EMSCRIPTEN_VERSION }}-${{ steps.get_tag.outputs.tag }}-${{ hashFiles('mmap_file.cpp', 'scripts/build-emscripten.sh') }}  
-          restore-keys: |  
-            ccache-${{ env.EMSCRIPTEN_VERSION }}-
+      # - name: Cache ccache  
+      #   uses: actions/cache@v4  
+      #   with:  
+      #     path: ~/.ccache  
+      #     key: ccache-${{ env.EMSCRIPTEN_VERSION }}-${{ steps.get_tag.outputs.tag }}-${{ hashFiles('mmap_file.cpp', 'scripts/build-emscripten.sh') }}  
+      #     restore-keys: |  
+      #       ccache-${{ env.EMSCRIPTEN_VERSION }}-
             
       - name: Cache build artifacts  
         uses: actions/cache@v4  
