@@ -132,7 +132,7 @@ cmake_build_install sdl3_image sdl3-image-build \
     -DSDLIMAGE_AVIF=OFF \
     -DSDLIMAGE_JXL=OFF \
     -DSDLIMAGE_TIF=OFF \
-    -DSDLIMAGE_WEBP=OFF
+    -DSDLIMAGE_WEBP=OFF \
     -DBUILD_SHARED_LIBS=OFF
 #
 # SDL3_ttf
