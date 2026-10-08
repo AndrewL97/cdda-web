@@ -4,11 +4,12 @@ on:
   push:  
     tags:  
       - '0.*'  
-      - '0.*-build*'  
+      - '0.*-build*' 
+      - 'cdda-experimental-*'
   workflow_dispatch:  
     inputs:  
       release_tag:  
-        description: 'CDDA release tag to build (e.g., 0.I for stable Ito)'  
+        description: 'CDDA release tag to build (or latest)'
         required: true  
         default: 'latest'  
   
@@ -39,11 +40,20 @@ jobs:
         id: get_tag  
         run: |  
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then  
-            if [ "${{ github.event.inputs.release_tag }}" = "latest" ]; then  
-              echo "Fetching latest stable Ito release tag..."  
-              TAG=$(git ls-remote --tags https://github.com/${{ env.CDDA_REPO }}.git | grep -E 'refs/tags/0\.[A-Z]$' | sed 's#.*/##' | sort -V | tail -n1)  
-              echo "tag=$TAG" >> $GITHUB_OUTPUT  
-            else  
+            if [ "${{ github.event.inputs.release_tag }}" = "latest" ]; then
+              echo "Fetching latest CDDA release tag..."
+              TAG=$(curl -fsSL \
+                -H "Accept: application/vnd.github+json" \
+                "https://api.github.com/repos/${{ env.CDDA_REPO }}/releases?per_page=1" |
+                jq -r '.[0].tag_name')
+            
+              if [ -z "$TAG" ] || [ "$TAG" = "null" ]; then
+                echo "Error: Could not determine latest CDDA release tag"
+                exit 1
+              fi
+            
+              echo "tag=$TAG" >> $GITHUB_OUTPUT
+            else
               echo "tag=${{ github.event.inputs.release_tag }}" >> $GITHUB_OUTPUT  
             fi  
           else  
