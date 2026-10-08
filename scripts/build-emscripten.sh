@@ -29,6 +29,8 @@ clone_release() {
     echo "DEBUG: branch='release-${version}'"
 
     git clone --depth 1 \
+        --recurse-submodules \
+        --shallow-submodules \
         --branch "release-${version}" \
         "https://github.com/libsdl-org/${repo}.git" \
         "${dir}"
