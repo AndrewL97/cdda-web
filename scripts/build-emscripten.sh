@@ -69,6 +69,7 @@ clone_release SDL "${SDL3_VERSION}" sdl3
 cmake_build_install sdl3 sdl3-build \
     -DCMAKE_BUILD_TYPE=Release \
     -DSDL_DEPS_SHARED=ON \
+    -DSDL_TESTS=OFF \
     -DSDL_AUDIO=ON \
     -DSDL_ALSA=ON \
     -DSDL_ALSA_SHARED=ON \
