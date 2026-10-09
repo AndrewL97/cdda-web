@@ -142,6 +142,17 @@ cmake_build_install sdl3_ttf sdl3-ttf-build \
     -DSDLTTF_FREETYPE=ON \
     -DBUILD_SHARED_LIBS=OFF
 
+# Explicitly copy FreeType headers from vendored build to prefix
+# This ensures they're available for the CDDA build
+echo "Installing FreeType headers from vendored SDL_ttf build..."
+if [[ -d "${SDL_BUILD_ROOT}/sdl3-ttf-build/external/freetype/include" ]]; then
+    mkdir -p "${SDL_PREFIX}/include"
+    cp -r "${SDL_BUILD_ROOT}/sdl3-ttf-build/external/freetype/include"/* "${SDL_PREFIX}/include/"
+    echo "DEBUG: FreeType headers copied to ${SDL_PREFIX}/include"
+else
+    echo "DEBUG: No vendored FreeType found at expected location"
+fi
+
 #
 # SDL3_mixer
 #
@@ -189,68 +200,55 @@ pkg-config --modversion sdl3-mixer
 # Expose SDL_ttf's vendored FreeType headers to the CDDA build.
 #
 
-# FreeType should be installed with SDL_ttf in the prefix
+echo "DEBUG: Locating FreeType headers for CDDA build..."
+
 FREETYPE_INCLUDE_DIR="${SDL_PREFIX}/include"
+FREETYPE_CONFIG_DIR="${SDL_PREFIX}/include"
 
-# Look for ftconfig.h in the build directory or prefix
-FREETYPE_CONFIG_DIR="$(find \
-    "${SDL_BUILD_ROOT}/sdl3-ttf-build" \
-    -type f \
-    -name ftconfig.h \
-    -printf '%h\n' \
-    -quit
-)" || FREETYPE_CONFIG_DIR="${SDL_PREFIX}/include"
-
-# Alternative: Check if headers exist at the standard SDL_ttf vendored location
-if [[ -d "${SDL_BUILD_ROOT}/sdl3-ttf-build/external/freetype/include" ]]; then
-    FREETYPE_INCLUDE_DIR="${SDL_BUILD_ROOT}/sdl3-ttf-build/external/freetype/include"
-fi
-
-# Debug info to help diagnose header layout mismatches.
-for candidate in \
-    "${SDL_BUILD_ROOT}/sdl3-ttf-build" \
-    "${SDL_BUILD_ROOT}/sdl3-ttf-build/external" \
-    "${SDL_BUILD_ROOT}/sdl3-ttf-build/external/freetype" \
-    "${SDL_BUILD_ROOT}/sdl3-ttf-build/external/freetype/include" \
-    "${SDL_PREFIX}/include"; do
-    echo "DEBUG candidate: ${candidate}"
-    if [[ -d "${candidate}" ]]; then
-        find "${candidate}" -maxdepth 3 \( -name 'ft2build.h' -o -name 'ftconfig.h' \) -print | sort
+# Verify the headers were properly installed
+if [[ ! -f "${FREETYPE_INCLUDE_DIR}/freetype/ft2build.h" ]] && \
+   [[ ! -f "${FREETYPE_INCLUDE_DIR}/ft2build.h" ]]; then
+    echo "DEBUG: FreeType headers not found in standard location, searching build tree..."
+    
+    # Try to find them in the SDL_ttf build directory
+    if [[ -f "${SDL_BUILD_ROOT}/sdl3-ttf-build/external/freetype/include/freetype/ft2build.h" ]]; then
+        echo "DEBUG: Found in external/freetype/include/freetype"
+        FREETYPE_INCLUDE_DIR="${SDL_BUILD_ROOT}/sdl3-ttf-build/external/freetype/include"
+        FREETYPE_CONFIG_DIR="${SDL_BUILD_ROOT}/sdl3-ttf-build/external/freetype/include"
+    elif [[ -f "${SDL_BUILD_ROOT}/sdl3-ttf-build/external/freetype/include/ft2build.h" ]]; then
+        echo "DEBUG: Found in external/freetype/include"
+        FREETYPE_INCLUDE_DIR="${SDL_BUILD_ROOT}/sdl3-ttf-build/external/freetype/include"
+        FREETYPE_CONFIG_DIR="${SDL_BUILD_ROOT}/sdl3-ttf-build/external/freetype/include"
     else
-        echo "DEBUG missing directory: ${candidate}"
+        echo "ERROR: Could not locate FreeType headers"
+        echo "Searched in:"
+        echo "  - ${SDL_PREFIX}/include/"
+        echo "  - ${SDL_BUILD_ROOT}/sdl3-ttf-build/external/freetype/include/"
+        echo ""
+        echo "FreeType files in build directory:"
+        find "${SDL_BUILD_ROOT}/sdl3-ttf-build" -name "ft2build.h" -o -name "ftconfig.h" 2>/dev/null || true
+        exit 1
     fi
-done
-
-FREETYPE_HEADER_PATH=""
-if [[ -f "${FREETYPE_INCLUDE_DIR}/freetype/ft2build.h" ]]; then
-    FREETYPE_HEADER_PATH="${FREETYPE_INCLUDE_DIR}/freetype/ft2build.h"
-elif [[ -f "${FREETYPE_INCLUDE_DIR}/ft2build.h" ]]; then
-    FREETYPE_HEADER_PATH="${FREETYPE_INCLUDE_DIR}/ft2build.h"
 fi
 
-if [[ -z "${FREETYPE_HEADER_PATH}" ]]; then
-    echo "ERROR: Could not locate FreeType headers at ${FREETYPE_INCLUDE_DIR}"
-    echo "Searching for FreeType headers in SDL_ttf build..."
-    find "${SDL_BUILD_ROOT}/sdl3-ttf-build" \( -name ft2build.h -o -name ftconfig.h \) -print
+echo "FreeType include directory: ${FREETYPE_INCLUDE_DIR}"
+echo "FreeType config directory:  ${FREETYPE_CONFIG_DIR}"
+
+# Final verification
+if [[ ! -d "${FREETYPE_INCLUDE_DIR}" ]]; then
+    echo "ERROR: FREETYPE_INCLUDE_DIR does not exist: ${FREETYPE_INCLUDE_DIR}"
     exit 1
 fi
 
-if [[ -f "${FREETYPE_CONFIG_DIR}/ftconfig.h" ]]; then
-    echo "DEBUG found ftconfig.h in ${FREETYPE_CONFIG_DIR}"
-else
-    echo "DEBUG missing ftconfig.h in ${FREETYPE_CONFIG_DIR}"
-fi
-
-echo "FreeType headers: ${FREETYPE_INCLUDE_DIR}"
-echo "FreeType header path: ${FREETYPE_HEADER_PATH}"
-echo "FreeType config:  ${FREETYPE_CONFIG_DIR}"
-
-echo "DEBUG include dir contents:"
-find "${FREETYPE_INCLUDE_DIR}" -maxdepth 2 -print | head -200
+echo "DEBUG: FreeType headers found at: ${FREETYPE_INCLUDE_DIR}"
+find "${FREETYPE_INCLUDE_DIR}" -maxdepth 2 -type f \( -name "ft2build.h" -o -name "ftconfig.h" \) | head -20
 
 export CXXFLAGS="${CXXFLAGS:-} -isystem ${FREETYPE_INCLUDE_DIR} -isystem ${FREETYPE_CONFIG_DIR}"
 export CFLAGS="${CFLAGS:-} -isystem ${FREETYPE_INCLUDE_DIR} -isystem ${FREETYPE_CONFIG_DIR}"
 
+echo "DEBUG: Compiler flags:"
+echo "  CFLAGS=${CFLAGS}"
+echo "  CXXFLAGS=${CXXFLAGS}"
 
 make -j"$(nproc)" \
     NATIVE=emscripten \
