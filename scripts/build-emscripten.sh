@@ -201,20 +201,52 @@ FREETYPE_CONFIG_DIR="$(find \
     -quit
 )" || FREETYPE_CONFIG_DIR="${SDL_PREFIX}/include"
 
-# Alternative: Check if headers exist at standard SDL_ttf vendored location
+# Alternative: Check if headers exist at the standard SDL_ttf vendored location
 if [[ -d "${SDL_BUILD_ROOT}/sdl3-ttf-build/external/freetype/include" ]]; then
     FREETYPE_INCLUDE_DIR="${SDL_BUILD_ROOT}/sdl3-ttf-build/external/freetype/include"
 fi
 
-if [[ ! -f "${FREETYPE_INCLUDE_DIR}/freetype/ft2build.h" ]]; then
+# Debug info to help diagnose header layout mismatches.
+for candidate in \
+    "${SDL_BUILD_ROOT}/sdl3-ttf-build" \
+    "${SDL_BUILD_ROOT}/sdl3-ttf-build/external" \
+    "${SDL_BUILD_ROOT}/sdl3-ttf-build/external/freetype" \
+    "${SDL_BUILD_ROOT}/sdl3-ttf-build/external/freetype/include" \
+    "${SDL_PREFIX}/include"; do
+    echo "DEBUG candidate: ${candidate}"
+    if [[ -d "${candidate}" ]]; then
+        find "${candidate}" -maxdepth 3 \( -name 'ft2build.h' -o -name 'ftconfig.h' \) -print | sort
+    else
+        echo "DEBUG missing directory: ${candidate}"
+    fi
+done
+
+FREETYPE_HEADER_PATH=""
+if [[ -f "${FREETYPE_INCLUDE_DIR}/freetype/ft2build.h" ]]; then
+    FREETYPE_HEADER_PATH="${FREETYPE_INCLUDE_DIR}/freetype/ft2build.h"
+elif [[ -f "${FREETYPE_INCLUDE_DIR}/ft2build.h" ]]; then
+    FREETYPE_HEADER_PATH="${FREETYPE_INCLUDE_DIR}/ft2build.h"
+fi
+
+if [[ -z "${FREETYPE_HEADER_PATH}" ]]; then
     echo "ERROR: Could not locate FreeType headers at ${FREETYPE_INCLUDE_DIR}"
     echo "Searching for FreeType headers in SDL_ttf build..."
     find "${SDL_BUILD_ROOT}/sdl3-ttf-build" \( -name ft2build.h -o -name ftconfig.h \) -print
     exit 1
 fi
 
+if [[ -f "${FREETYPE_CONFIG_DIR}/ftconfig.h" ]]; then
+    echo "DEBUG found ftconfig.h in ${FREETYPE_CONFIG_DIR}"
+else
+    echo "DEBUG missing ftconfig.h in ${FREETYPE_CONFIG_DIR}"
+fi
+
 echo "FreeType headers: ${FREETYPE_INCLUDE_DIR}"
+echo "FreeType header path: ${FREETYPE_HEADER_PATH}"
 echo "FreeType config:  ${FREETYPE_CONFIG_DIR}"
+
+echo "DEBUG include dir contents:"
+find "${FREETYPE_INCLUDE_DIR}" -maxdepth 2 -print | head -200
 
 export CXXFLAGS="${CXXFLAGS:-} -isystem ${FREETYPE_INCLUDE_DIR} -isystem ${FREETYPE_CONFIG_DIR}"
 export CFLAGS="${CFLAGS:-} -isystem ${FREETYPE_INCLUDE_DIR} -isystem ${FREETYPE_CONFIG_DIR}"
